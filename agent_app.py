@@ -16,7 +16,7 @@ st.sidebar.header("🔑 AI Brain Activation")
 gemini_key = st.sidebar.text_input("Gemini AI Key দিন (ফ্রি):", type="password")
 api_key = st.sidebar.text_input("ইউটিউব Data API Key দিন:", type="password")
 
-# ডাইনামিক মডেল সিলেক্টর (ভবিষ্যতের সেফটির জন্য)
+# ডাইনামিক মডেল সিলেক্টর
 model_type = st.sidebar.selectbox(
     "🤖 AI Model সিলেক্ট করুন:",
     ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-2.5-flash"]
@@ -50,7 +50,7 @@ with tab1:
         elif not clean_gemini_key:
             st.error("দয়া করে বাম পাশের সাইডবারে আপনার ফ্রি Gemini AI Key টি দিন।")
         else:
-            with st.spinner(f"গুগল জেমিনি এআই ({clean_model_type}) আপনার নিউজের কন্টেক্সট অ্যানালাইসিস করছে..."):
+            with st.spinner(f"গুগল জেমিনি এআই ({clean_model_type}) আপনার নিউজের কন্টেক্সট ও অ্যালগরিদম অ্যানালাইসিস করছে..."):
                 
                 # --- এআই প্রম্পট ইঞ্জিনিয়ারিং ---
                 prompt = f"""
@@ -74,7 +74,6 @@ with tab1:
                 """
                 
                 try:
-                    # ডাইনামিক মডেল ইউআরএল লজিক
                     url = f"https://generativelanguage.googleapis.com/v1/models/{clean_model_type}:generateContent?key={clean_gemini_key}"
                     payload = {"contents": [{"parts": [{"text": prompt}]}]}
                     headers = {'Content-Type': 'application/json'}
@@ -82,7 +81,8 @@ with tab1:
                     req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers=headers)
                     with urllib.request.urlopen(req) as response:
                         res_data = json.loads(response.read().decode('utf-8'))
-                        ai_response = res_data['contents'][0]['parts'][0]['text']
+                        # ফিক্সড লাইন: এখানে contents এর বদলে সঠিক 'candidates' রেসপন্স ফরম্যাট ব্যবহার করা হয়েছে
+                        ai_response = res_data['candidates'][0]['content']['parts'][0]['text']
                     
                     # --- ডাটা পার্সিং ---
                     def extract_section(marker, text):
@@ -162,13 +162,12 @@ with tab1:
                         err_body = json.loads(he.read().decode('utf-8'))
                         err_detail = err_body.get('error', {}).get('message', 'Unknown Google API Issue')
                         st.error(f"❌ গুগল এআই সার্ভার এরর (400): {err_detail}")
-                        st.info("💡 পরামর্শ: সাইডবার থেকে মডেল পরিবর্তন করে 'gemini-2.0-flash' বা 'gemini-1.5-flash-latest' ট্রাই করুন।")
                     except:
                         st.error(f"❌ HTTP Error 400: {he.reason}. মডেল বা এপিআই কি সঠিক নয়।")
                 except Exception as e:
                     st.error(f"সাধারণ সমস্যা: {e}")
 
-# ----------------- 🔍নোট: ফিক্সড ট্যাব ২ (Deep Competitor Scraper) -----------------
+# ----------------- 🔍নোট: ফিক্সডস ট্যাব ২ (Deep Competitor Scraper) -----------------
 with tab2:
     st.header("প্রতিদ্বন্দী ভিডিওর ভেতরের আসল Tags এবং Hashtags স্ক্র্যাপার")
     keyword = st.text_input("সার্চ কিওয়ার্ডটি লিখুন:", placeholder="যেমন: বাজেট ২০২৬ বাংলাদেশ", key="tab2_kw")

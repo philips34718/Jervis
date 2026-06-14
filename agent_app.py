@@ -9,16 +9,23 @@ import json
 # পেজ সেটআপ
 st.set_page_config(page_title="TBS Sovereign Agent 3.0", page_icon="🧠", layout="wide")
 st.title("🧠 TBS Sovereign SEO Agent 3.0 (Super Brain Edition)")
-st.caption("Google Gemini AI (v1 Stable) এবং YouTube Live Search API দ্বারা চালিত সর্বাধুনিক অটো-পাইলট engine।")
+st.caption("Google Gemini AI (Stable) এবং YouTube Live Search API দ্বারা চালিত সর্বাধুনিক অটো-পাইলট engine।")
 
 # সাইডবার কন্ট্রোল প্যানেল
 st.sidebar.header("🔑 AI Brain Activation")
 gemini_key = st.sidebar.text_input("Gemini AI Key দিন (ফ্রি):", type="password")
 api_key = st.sidebar.text_input("ইউটিউব Data API Key দিন:", type="password")
 
+# ডাইনামিক মডেল সিলেক্টর (ভবিষ্যতের সেফটির জন্য)
+model_type = st.sidebar.selectbox(
+    "🤖 AI Model সিলেক্ট করুন:",
+    ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-2.5-flash"]
+)
+
 # স্পেস ট্রিম করা নিশ্চিত করা
 clean_gemini_key = gemini_key.strip() if gemini_key else ""
 clean_api_key = api_key.strip() if api_key else ""
+clean_model_type = model_type.strip()
 
 # 🖥️ ট্যাব বিন্যাস
 tab1, tab2 = st.tabs(["⚡ Super Brain Optimizer", "🔍 Deep Competitor Scraper"])
@@ -41,9 +48,9 @@ with tab1:
         if not headline:
             st.warning("আগে একটি হেডলাইন ইনপুট দিন!")
         elif not clean_gemini_key:
-            st.error("দয়া করেবাম পাশের সাইডবারে আপনার ফ্রি Gemini AI Key টি দিন।")
+            st.error("দয়া করে বাম পাশের সাইডবারে আপনার ফ্রি Gemini AI Key টি দিন।")
         else:
-            with st.spinner("গুগল জেমিনি এআই আপনার নিউজের কন্টেক্সট ও অ্যালগরিদম অ্যানালাইসিস করছে..."):
+            with st.spinner(f"গুগল জেমিনি এআই ({clean_model_type}) আপনার নিউজের কন্টেক্সট অ্যানালাইসিস করছে..."):
                 
                 # --- এআই প্রম্পট ইঞ্জিনিয়ারিং ---
                 prompt = f"""
@@ -67,7 +74,8 @@ with tab1:
                 """
                 
                 try:
-                    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={clean_gemini_key}"
+                    # ডাইনামিক মডেল ইউআরএল লজিক
+                    url = f"https://generativelanguage.googleapis.com/v1/models/{clean_model_type}:generateContent?key={clean_gemini_key}"
                     payload = {"contents": [{"parts": [{"text": prompt}]}]}
                     headers = {'Content-Type': 'application/json'}
                     
@@ -97,7 +105,7 @@ with tab1:
 
                     # --- আউটপুট ডিসপ্লে ---
                     st.markdown("---")
-                    st.success("🎯 সুপার ব্রেন সাকসেসফুলি ৬টি প্ল্যাটফর্মের ডেটা রেডি করেছে!")
+                    st.success(f"🎯 সুপার ব্রেন ({clean_model_type}) সাকসেসফুলি ৬টি প্ল্যাটফর্মের ডেটা রেডি করেছে!")
                     
                     row1_c1, row1_c2, row1_c3 = st.columns(3)
                     row2_c1, row2_c2, row2_c3 = st.columns(3)
@@ -154,12 +162,13 @@ with tab1:
                         err_body = json.loads(he.read().decode('utf-8'))
                         err_detail = err_body.get('error', {}).get('message', 'Unknown Google API Issue')
                         st.error(f"❌ গুগল এআই সার্ভার এরর (400): {err_detail}")
+                        st.info("💡 পরামর্শ: সাইডবার থেকে মডেল পরিবর্তন করে 'gemini-2.0-flash' বা 'gemini-1.5-flash-latest' ট্রাই করুন।")
                     except:
-                        st.error(f"❌ HTTP Error 400: {he.reason}. আপনার কী-টি চেক করুন।")
+                        st.error(f"❌ HTTP Error 400: {he.reason}. মডেল বা এপিআই কি সঠিক নয়।")
                 except Exception as e:
                     st.error(f"সাধারণ সমস্যা: {e}")
 
-# ----------------- 🔍 ট্যাব ২: প্রতিদ্বন্দী স্ক্র্যাপার (ফিক্সড ও নিরাপদ) -----------------
+# ----------------- 🔍নোট: ফিক্সড ট্যাব ২ (Deep Competitor Scraper) -----------------
 with tab2:
     st.header("প্রতিদ্বন্দী ভিডিওর ভেতরের আসল Tags এবং Hashtags স্ক্র্যাপার")
     keyword = st.text_input("সার্চ কিওয়ার্ডটি লিখুন:", placeholder="যেমন: বাজেট ২০২৬ বাংলাদেশ", key="tab2_kw")

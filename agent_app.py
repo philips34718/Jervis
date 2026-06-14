@@ -41,7 +41,7 @@ with tab1:
         if not headline:
             st.warning("আগে একটি হেডলাইন ইনপুট দিন!")
         elif not clean_gemini_key:
-            st.error("দয়া করে বাম পাশের সাইডবারে আপনার ফ্রি Gemini AI Key টি দিন।")
+            st.error("দয়া করেবাম পাশের সাইডবারে আপনার ফ্রি Gemini AI Key টি দিন।")
         else:
             with st.spinner("গুগল জেমিনি এআই আপনার নিউজের কন্টেক্সট ও অ্যালগরিদম অ্যানালাইসিস করছে..."):
                 
@@ -67,7 +67,6 @@ with tab1:
                 """
                 
                 try:
-                    # ফিক্সড লাইন: এখানে v1beta পরিবর্তন করে v1 স্টেবল এন্ডপয়েন্ট করা হয়েছে
                     url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={clean_gemini_key}"
                     payload = {"contents": [{"parts": [{"text": prompt}]}]}
                     headers = {'Content-Type': 'application/json'}
@@ -109,7 +108,7 @@ with tab1:
                         st.code(yt_title, language="")
                         st.write("**Optimized Description:**")
                         st.code(yt_desc, language="")
-                        st.write("**🎯サーチ Tags (Tag Box):**")
+                        st.write("**🎯 সার্চ Tags (Tag Box):**")
                         st.code(yt_tags, language="")
                         
                     with row1_c2:
@@ -160,10 +159,10 @@ with tab1:
                 except Exception as e:
                     st.error(f"সাধারণ সমস্যা: {e}")
 
-# ----------------- 🔍 ট্যাব ২: প্রতিদ্বন্দী স্ক্র্যাপার -----------------
+# ----------------- 🔍 ট্যাব ২: প্রতিদ্বন্দী স্ক্র্যাপার (ফিক্সড ও নিরাপদ) -----------------
 with tab2:
     st.header("প্রতিদ্বন্দী ভিডিওর ভেতরের আসল Tags এবং Hashtags স্ক্র্যাপার")
-    keyword = st.text_input("সার্চ কিওয়ার্ডটি লিখুন:", placeholder="যেমন: বাজেট ২০%;">
+    keyword = st.text_input("সার্চ কিওয়ার্ডটি লিখুন:", placeholder="যেমন: বাজেট ২০২৬ বাংলাদেশ", key="tab2_kw")
     max_results = st.slider("কয়টি প্রতিদ্বন্দী ভিডিও অ্যানালাইসিস করবেন?", 5, 20, 10)
 
     if st.button("SEO এনালাইসিস শুরু করুন 🚀", key="tab2_btn"):

@@ -3,17 +3,23 @@ from googleapiclient.discovery import build
 import re
 import urllib.request
 import urllib.parse
+import urllib.error
 import json
 
 # পেজ সেটআপ
 st.set_page_config(page_title="TBS Sovereign Agent 3.0", page_icon="🧠", layout="wide")
 st.title("🧠 TBS Sovereign SEO Agent 3.0 (Super Brain Edition)")
-st.caption("Google Gemini AI এবং YouTube Live Search API দ্বারা চালিত সর্বাধুনিক অটো-পাইলট ইঞ্জিন।")
+st.caption("Google Gemini AI এবং YouTube Live Search API দ্বারা চালিত সর্বাধুনিক অটো-পাইলট engine।")
 
 # সাইডবার কন্ট্রোল প্যানেল
 st.sidebar.header("🔑 AI Brain Activation")
 gemini_key = st.sidebar.text_input("Gemini AI Key দিন (ফ্রি):", type="password")
 api_key = st.sidebar.text_input("ইউটিউব Data API Key দিন:", type="password")
+
+# 📄 রিকোয়ারমেন্টস চেক
+# জাস্ট নিশ্চিত করা যে গুগলের ইন্টারনাল স্পেসগুলো ট্রিম হচ্ছে কিনা
+clean_gemini_key = gemini_key.strip() if gemini_key else ""
+clean_api_key = api_key.strip() if api_key else ""
 
 # ট্যাব বিন্যাস
 tab1, tab2 = st.tabs(["⚡ Super Brain Optimizer", "🔍 Deep Competitor Scraper"])
@@ -35,12 +41,12 @@ with tab1:
     if st.button("🧠 সুপার ব্রেন অপ্টিমাইজেশন রান করুন 🚀"):
         if not headline:
             st.warning("আগে একটি হেডলাইন ইনপুট দিন!")
-        elif not gemini_key:
-            st.error("দয়া করে বাম পাশের সাইডবারে আপনার ফ্রি Gemini AI Key টি দিন। এই সুপার ব্রেন চালাতে এটি বাধ্যতামূলক।")
+        elif not clean_gemini_key:
+            st.error("দয়া করে বাম পাশের সাইডবারে আপনার ফ্রি Gemini AI Key টি দিন।")
         else:
             with st.spinner("গুগল জেমিনি এআই আপনার নিউজের কন্টেক্সট ও অ্যালগরিদম অ্যানালাইসিস করছে..."):
                 
-                # --- এআই প্রম্পট ইঞ্জিনিয়ারিং (সর্বোচ্চ রিচ নিশ্চিত করার জন্য) ---
+                # --- এআই প্রম্পট ইঞ্জিনিয়ারিং ---
                 prompt = f"""
                 Act as an elite YouTube News SEO Specialist for 'The Business Standard (TBS)' news channel.
                 Analyze the following news headline and description to generate hyper-optimized metadata for maximum views and organic reach.
@@ -61,9 +67,8 @@ with tab1:
                 [ENGLISH_CMS]: Translate or adapt the Bengali headline into a powerful, professional English headline for the TBS English Website CMS.
                 """
                 
-                # জেমিনি এপিআই-তে সরাসরি রিকোয়েস্ট (কোনো এক্সট্রা প্যাকেজ ঝামেলা ছাড়া)
                 try:
-                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={clean_gemini_key}"
                     payload = {"contents": [{"parts": [{"text": prompt}]}]}
                     headers = {'Content-Type': 'application/json'}
                     
@@ -72,17 +77,16 @@ with tab1:
                         res_data = json.loads(response.read().decode('utf-8'))
                         ai_response = res_data['contents'][0]['parts'][0]['text']
                     
-                    # --- ডাটা পার্সিং এবং সাজানো ---
+                    # --- ডাটা পার্সিং ---
                     def extract_section(marker, text):
                         pattern = rf"\[{marker}\]:(.*?)(?=\[\w+\||\Z)"
                         match = re.search(pattern, text, re.DOTALL)
                         if match:
                             return match.group(1).strip()
-                        # Fallback simple split if regex misses
                         try:
                             return text.split(f"[{marker}]:")[1].split("[")[0].strip()
                         except:
-                            return "AI generation completed. Check full log below."
+                            return "AI Generation failed for this block."
 
                     yt_title = extract_section("YT_TITLE", ai_response)
                     yt_desc = extract_section("YT_DESC", ai_response)
@@ -103,16 +107,14 @@ with tab1:
                         st.error("📺 YouTube Video")
                         st.write("**AI Target Title (<100 Chars):**")
                         st.code(yt_title, language="")
-                        if len(yt_title) > 100:
-                            st.error(f"লিমিট ক্রসড: {len(yt_title)} Chars")
                         st.write("**Optimized Description:**")
                         st.code(yt_desc, language="")
-                        st.write("**🎯 সার্চ টैगস (Tag Box):**")
+                        st.write("**🎯 সার্চ ট্যাগস (Tag Box):**")
                         st.code(yt_tags, language="")
                         
                     with row1_c2:
                         st.error("📊 YT Community Post & Poll")
-                        st.write("**কমিউনিটি ট্যাব কন্টেন্ট (কপি করুন):**")
+                        st.write("**কমিউনিটি ট্যাব কন্টেন্ট:**")
                         st.code(comm_post, language="")
                         
                     with row1_c3:
@@ -128,15 +130,14 @@ with tab1:
                     with row2_c2:
                         st.success("📰 TBS Bangla CMS")
                         st.write("**বাংলা ওয়েবসাইট হেডলাইন:**")
-                        st.code(headline_clean, language="")
+                        st.code(headline.strip(), language="")
                         st.write("**ভিডিও বডি বিবরণ:**")
-                        st.code(given_desc if given_desc else headline_clean, language="")
+                        st.code(given_desc if given_desc else headline.strip(), language="")
                         
                     with row2_c3:
                         st.success("🇬🇧 TBS English CMS")
                         st.write("**অটো-অনূদিত ইংলিশ হেডলাইন:**")
                         st.code(eng_cms, language="")
-                        st.caption("💡 এআই স্বয়ংক্রিয়ভাবে খবরের গুরুত্ব বুঝে প্রফেশনাল ইংলিশ টাইটেল তৈরি করেছে।")
 
                     # টাস্ক ট্র্যাকার
                     st.markdown("---")
@@ -149,27 +150,34 @@ with tab1:
                     ch5.checkbox("Bangla CMS Done")
                     ch6.checkbox("English CMS Done")
 
-                    with st.expander("📝 সম্পূর্ণ AI রিলিজ নোট (Raw Data)"):
-                        st.text(ai_response)
-
+                except urllib.error.HTTPError as he:
+                    try:
+                        # গুগলের এরর রেসপন্স বডি থেকে আসল কারণ বের করা
+                        err_body = json.loads(he.read().decode('utf-8'))
+                        err_detail = err_body.get('error', {}).get('message', 'Unknown Google API Issue')
+                        st.error(f"❌ গুগল এআই সার্ভার এরর (400): {err_detail}")
+                        if "API key not valid" in err_detail or "INVALID_ARGUMENT" in err_detail:
+                            st.info("💡 সমাধান: আপনার Gemini AI Key টি ভুল। অনুগ্রহ করে এআই স্টুডিও থেকে সঠিক কী-টি পুনরায় কপি করে আনুন।")
+                    except:
+                        st.error(f"❌ HTTP Error 400: {he.reason}. আপনার কী-টি চেক করুন।")
                 except Exception as e:
-                    st.error(f"এআই প্রসেসিংয়ে সমস্যা হয়েছে: {e}")
+                    st.error(f"সাধারণ সমস্যা: {e}")
 
-# ----------------- 🔍 ট্যাব ২: প্রতিদ্বন্দী স্ক্র্যাপার (অপরিবর্তিত ও নিরাপদ) -----------------
+# ----------------- 🔍 ট্যাব ২: প্রতিদ্বন্দী স্ক্র্যাপার -----------------
 with tab2:
     st.header("প্রতিদ্বন্দী ভিডিওর ভেতরের আসল Tags এবং Hashtags স্ক্র্যাপার")
     keyword = st.text_input("সার্চ কিওয়ার্ডটি লিখুন:", placeholder="যেমন: বাজেট ২০২৬ বাংলাদেশ", key="tab2_kw")
     max_results = st.slider("কয়টি প্রতিদ্বন্দী ভিডিও অ্যানালাইসিস করবেন?", 5, 20, 10)
 
     if st.button("SEO এনালাইসিস শুরু করুন 🚀", key="tab2_btn"):
-        if not api_key:
+        if not clean_api_key:
             st.error("দয়া করে বাম পাশের সাইডবারে আপনার ইউটিউব Data API Key টি দিন।")
         elif not keyword:
             st.warning("আগে একটি কিওয়ার্ড লিখুন!")
         else:
             with st.spinner("ইউটিউব থেকে আসল Tags স্ক্র্যাপ করা হচ্ছে..."):
                 try:
-                    youtube = build('youtube', 'v3', developerKey=api_key)
+                    youtube = build('youtube', 'v3', developerKey=clean_api_key)
                     search_response = youtube.search().list(
                         q=keyword, part='snippet', maxResults=max_results, type='video', relevanceLanguage='bn'
                     ).execute()

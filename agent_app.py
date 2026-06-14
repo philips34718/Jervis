@@ -9,19 +9,18 @@ import json
 # পেজ সেটআপ
 st.set_page_config(page_title="TBS Sovereign Agent 3.0", page_icon="🧠", layout="wide")
 st.title("🧠 TBS Sovereign SEO Agent 3.0 (Super Brain Edition)")
-st.caption("Google Gemini AI এবং YouTube Live Search API দ্বারা চালিত সর্বাধুনিক অটো-পাইলট engine।")
+st.caption("Google Gemini AI (v1 Stable) এবং YouTube Live Search API দ্বারা চালিত সর্বাধুনিক অটো-পাইলট engine।")
 
 # সাইডবার কন্ট্রোল প্যানেল
 st.sidebar.header("🔑 AI Brain Activation")
 gemini_key = st.sidebar.text_input("Gemini AI Key দিন (ফ্রি):", type="password")
 api_key = st.sidebar.text_input("ইউটিউব Data API Key দিন:", type="password")
 
-# 📄 রিকোয়ারমেন্টস চেক
-# জাস্ট নিশ্চিত করা যে গুগলের ইন্টারনাল স্পেসগুলো ট্রিম হচ্ছে কিনা
+# স্পেস ট্রিম করা নিশ্চিত করা
 clean_gemini_key = gemini_key.strip() if gemini_key else ""
 clean_api_key = api_key.strip() if api_key else ""
 
-# ট্যাব বিন্যাস
+# 🖥️ ট্যাব বিন্যাস
 tab1, tab2 = st.tabs(["⚡ Super Brain Optimizer", "🔍 Deep Competitor Scraper"])
 
 # ----------------- ⚡ ট্যাব ১: সুপার ব্রেন অপ্টিমাইজার -----------------
@@ -68,7 +67,8 @@ with tab1:
                 """
                 
                 try:
-                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={clean_gemini_key}"
+                    # ফিক্সড লাইন: এখানে v1beta পরিবর্তন করে v1 স্টেবল এন্ডপয়েন্ট করা হয়েছে
+                    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={clean_gemini_key}"
                     payload = {"contents": [{"parts": [{"text": prompt}]}]}
                     headers = {'Content-Type': 'application/json'}
                     
@@ -109,7 +109,7 @@ with tab1:
                         st.code(yt_title, language="")
                         st.write("**Optimized Description:**")
                         st.code(yt_desc, language="")
-                        st.write("**🎯 সার্চ ট্যাগস (Tag Box):**")
+                        st.write("**🎯サーチ Tags (Tag Box):**")
                         st.code(yt_tags, language="")
                         
                     with row1_c2:
@@ -152,12 +152,9 @@ with tab1:
 
                 except urllib.error.HTTPError as he:
                     try:
-                        # গুগলের এরর রেসপন্স বডি থেকে আসল কারণ বের করা
                         err_body = json.loads(he.read().decode('utf-8'))
                         err_detail = err_body.get('error', {}).get('message', 'Unknown Google API Issue')
                         st.error(f"❌ গুগল এআই সার্ভার এরর (400): {err_detail}")
-                        if "API key not valid" in err_detail or "INVALID_ARGUMENT" in err_detail:
-                            st.info("💡 সমাধান: আপনার Gemini AI Key টি ভুল। অনুগ্রহ করে এআই স্টুডিও থেকে সঠিক কী-টি পুনরায় কপি করে আনুন।")
                     except:
                         st.error(f"❌ HTTP Error 400: {he.reason}. আপনার কী-টি চেক করুন।")
                 except Exception as e:
@@ -166,7 +163,7 @@ with tab1:
 # ----------------- 🔍 ট্যাব ২: প্রতিদ্বন্দী স্ক্র্যাপার -----------------
 with tab2:
     st.header("প্রতিদ্বন্দী ভিডিওর ভেতরের আসল Tags এবং Hashtags স্ক্র্যাপার")
-    keyword = st.text_input("সার্চ কিওয়ার্ডটি লিখুন:", placeholder="যেমন: বাজেট ২০২৬ বাংলাদেশ", key="tab2_kw")
+    keyword = st.text_input("সার্চ কিওয়ার্ডটি লিখুন:", placeholder="যেমন: বাজেট ২০%;">
     max_results = st.slider("কয়টি প্রতিদ্বন্দী ভিডিও অ্যানালাইসিস করবেন?", 5, 20, 10)
 
     if st.button("SEO এনালাইসিস শুরু করুন 🚀", key="tab2_btn"):

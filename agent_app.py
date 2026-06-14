@@ -5,154 +5,157 @@ import urllib.request
 import urllib.parse
 import json
 
-# এজেন্ট ড্যাশবোর্ড সেটআপ
-st.set_page_config(page_title="TBS Sovereign SEO Agent 2.0", page_icon="🤖", layout="wide")
-st.title("🤖 TBS Sovereign SEO Agent 2.0 (Auto-Pilot Edition)")
-st.caption("লেটেস্ট ইউটিউব অ্যালগরিদম ও মেটা-ডেনসিটি অপ্টিমাইজড। ৬টি প্ল্যাটফর্মের জন্য এক ক্লিকে এলিট কন্টেন্ট ডিস্ট্রিবিউশন।")
+# পেজ সেটআপ
+st.set_page_config(page_title="TBS Sovereign Agent 3.0", page_icon="🧠", layout="wide")
+st.title("🧠 TBS Sovereign SEO Agent 3.0 (Super Brain Edition)")
+st.caption("Google Gemini AI এবং YouTube Live Search API দ্বারা চালিত সর্বাধুনিক অটো-পাইলট ইঞ্জিন।")
 
-# সাইডবারে API Key
-api_key = st.sidebar.text_input("ইউটিউব API Key দিন:", type="password")
+# সাইডবার কন্ট্রোল প্যানেল
+st.sidebar.header("🔑 AI Brain Activation")
+gemini_key = st.sidebar.text_input("Gemini AI Key দিন (ফ্রি):", type="password")
+api_key = st.sidebar.text_input("ইউটিউব Data API Key দিন:", type="password")
 
-# ইনপুট হাব
-st.markdown("### 📥 সেন্ট্রাল ডেটা ইনপুট")
-headline = st.text_input("কোম্পানি থেকে দেওয়া মূল Headline বা context টি দিন:", placeholder="যেমন: বাজেট নিয়ে ড. দেবপ্রিয় ভট্টাচার্যের তাৎক্ষণিক বিশ্লেষণ")
-given_desc = st.text_area("কোম্পানি থেকে দেওয়া বিবরণ (Description/Article Body):", placeholder="এখানে মূল বিবরণ বা খবরের ভেতরের অংশ পেস্ট করুন...")
+# ট্যাব বিন্যাস
+tab1, tab2 = st.tabs(["⚡ Super Brain Optimizer", "🔍 Deep Competitor Scraper"])
 
-if st.button("🤖 জেনারেট অল-চ্যানেল এলিট মেটাডেটা 🚀"):
-    if not headline:
-        st.warning("দয়া করে প্রথমে একটি হেডলাইন ইনপুট দিন।")
-    else:
-        with st.spinner("AI এজেন্ট অ্যালগরিদম ম্যাট্রিক্স প্রসেস করছে..."):
-            headline_clean = headline.strip()
-            
-            # --- ১. প্রফেশনাল নিউজের গভীরতা অনুযায়ী এলিট সাফিক্স ইঞ্জিন ---
-            suffix_pool = ["Bangla News", "Latest Update"]
-            category = "general"
-            
-            # নিখুঁত কিওয়ার্ড ম্যাচিং এবং সাফিক্স নির্ধারণ
-            if any(x in headline_clean for x in ["প্রতিরক্ষা", "সেনাবাহিনী", "সামরিক", "অস্ত্র", "military", "army", "যুদ্ধ"]):
-                suffix_pool = ["Military Power", "Defense News", "Geopolitics"]
-                category = "defense"
-            elif any(x in headline_clean for x in ["বাজেট", "অর্থনীতি", "টাকা", "অর্থ", "budget", "economy", "ব্যাংক", "রাজস্ব"]):
-                suffix_pool = ["Budget 2026", "Economy Update", "Finance Analysis"]
-                category = "economy"
-            elif any(x in headline_clean for x in ["জুলাই", "আন্দোলন", "বিপ্লব", "শহীদ", "যোদ্ধা", "uprising", "মুক্তিযোদ্ধা", "ছাত্র"]):
-                suffix_pool = ["July Uprising", "Mass Movement", "Bangladesh Crisis"]
-                category = "politics"
-            elif any(x in headline_clean for x in ["আদালত", "মামলা", "গ্রেপ্তার", "পুলিশ", "র্যাব", "কোর্ট", "court", "verdict"]):
-                suffix_pool = ["High Court", "Law and Order", "Crime News"]
-                category = "law"
-            elif any(x in headline_clean for x in ["খেলা", "বিশ্বকাপ", "ক্রিকেট", "ফুটবল", "ম্যাচ", "sports", "t20"]):
-                suffix_pool = ["Sports Update", "Cricket Live", "Match Analysis"]
-                category = "sports"
+# ----------------- ⚡ ট্যাব ১: সুপার ব্রেন অপ্টিমাইজার -----------------
+with tab1:
+    st.markdown("### 📥 সেন্ট্রাল ডেটা ইনপুট হাব")
+    
+    # ডিরেক্ট প্ল্যাটফর্ম লিংক
+    st.markdown("""
+    | 🔗 YouTube Studio | 🔗 Meta Business Suite | 🔗 TikTok Upload | 🔗 TBS Bangla CMS | 🔗 TBS English CMS |
+    | :---: | :---: | :---: | :---: | :---: |
+    | [Open Studio](https://studio.youtube.com) | [Open Meta](https://business.facebook.com) | [Open TikTok](https://www.tiktok.com/creator-center/upload) | [Open Bangla CMS](https://tbsnews.net/bangla) | [Open English CMS](https://tbsnews.net) |
+    """, unsafe_allow_html=True)
+    
+    headline = st.text_input("১. কোম্পানি থেকে দেওয়া মূল Headline বা নিউজ কনটেক্সট দিন:", placeholder="যেমন: প্রতিরক্ষায় আরও শক্তিশালী হবে বাংলাদেশ")
+    given_desc = st.text_area("২. কোম্পানি থেকে দেওয়া বিবরণ (Description/Article Body):", placeholder="এখানে বিবরণটি পেস্ট করুন...")
 
-            suffix_combined = " | ".join(suffix_pool)
-            branding_long = " | The Business Standard"
-            branding_short = " | TBS News"
-            
-            # ১০০ ক্যারেক্টার সিকিউরিটি লজিক
-            final_title = f"{headline_clean} | {suffix_combined}{branding_long}"
-            if len(final_title) > 100:
-                final_title = f"{headline_clean} | {suffix_combined}{branding_short}"
-            if len(final_title) > 100:
-                final_title = f"{headline_clean} | {suffix_combined}"
-            if len(final_title) > 100:
-                final_title = f"{headline_clean} | {suffix_pool[0]}{branding_short}"
-            if len(final_title) > 100:
-                final_title = headline_clean[:100]
+    if st.button("🧠 সুপার ব্রেন অপ্টিমাইজেশন রান করুন 🚀"):
+        if not headline:
+            st.warning("আগে একটি হেডলাইন ইনপুট দিন!")
+        elif not gemini_key:
+            st.error("দয়া করে বাম পাশের সাইডবারে আপনার ফ্রি Gemini AI Key টি দিন। এই সুপার ব্রেন চালাতে এটি বাধ্যতামূলক।")
+        else:
+            with st.spinner("গুগল জেমিনি এআই আপনার নিউজের কন্টেক্সট ও অ্যালগরিদম অ্যানালাইসিস করছে..."):
+                
+                # --- এআই প্রম্পট ইঞ্জিনিয়ারিং (সর্বোচ্চ রিচ নিশ্চিত করার জন্য) ---
+                prompt = f"""
+                Act as an elite YouTube News SEO Specialist for 'The Business Standard (TBS)' news channel.
+                Analyze the following news headline and description to generate hyper-optimized metadata for maximum views and organic reach.
+                
+                Current Context: Year 2026 Search Trends. All hashtags MUST be 100% lowercase with no spaces.
+                
+                News Headline: {headline}
+                News Description: {given_desc if given_desc else "No description provided."}
+                
+                Strict Output Rules:
+                Your response must contain these exact section markers so the app can parse them:
+                [YT_TITLE]: Generate a high-CTR title. STRICT 100 character limit. Based on context, add smart English keywords/suffix (e.g., | Military | Budget | Politics). If the headline is too long, dynamically drop the branding '| The Business Standard' or shorten to '| TBS News' to keep it under 100 chars. Prioritize news keywords.
+                [YT_DESC]: Keep the original description exactly as provided by the user. Do not add conversational fillers. At the end of the description, append 5 highly viral, completely lowercase hashtags (e.g., #tbsnews #banglanews).
+                [YT_TAGS]: 15 highly searched semantic keywords separated by commas for the YouTube tags box.
+                [COMMUNITY]: A catchy YouTube Community Post text. Include an engaging hook question, a 2-line summary, a Call-to-Action to watch the video, lowercase hashtags, and suggest a 4-option interactive Poll question.
+                [FB_META]: Facebook Title and optimized Facebook Description with hashtags.
+                [TIKTOK_META]: A punchy, short TikTok/Reels caption packed with viral lowercase hashtags.
+                [ENGLISH_CMS]: Translate or adapt the Bengali headline into a powerful, professional English headline for the TBS English Website CMS.
+                """
+                
+                # জেমিনি এপিআই-তে সরাসরি রিকোয়েস্ট (কোনো এক্সট্রা প্যাকেজ ঝামেলা ছাড়া)
+                try:
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
+                    payload = {"contents": [{"parts": [{"text": prompt}]}]}
+                    headers = {'Content-Type': 'application/json'}
+                    
+                    req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers=headers)
+                    with urllib.request.urlopen(req) as response:
+                        res_data = json.loads(response.read().decode('utf-8'))
+                        ai_response = res_data['contents'][0]['parts'][0]['text']
+                    
+                    # --- ডাটা পার্সিং এবং সাজানো ---
+                    def extract_section(marker, text):
+                        pattern = rf"\[{marker}\]:(.*?)(?=\[\w+\||\Z)"
+                        match = re.search(pattern, text, re.DOTALL)
+                        if match:
+                            return match.group(1).strip()
+                        # Fallback simple split if regex misses
+                        try:
+                            return text.split(f"[{marker}]:")[1].split("[")[0].strip()
+                        except:
+                            return "AI generation completed. Check full log below."
 
-            # --- ২. ফ্রি গুগল সাজেস্ট এপিআই থেকে লাইভ ট্যাগ এক্সট্রাকশন ---
-            words = re.findall(r'[\u0980-\u09fa\w]+', headline_clean)
-            stop_words = ["নিয়ে", "ও", "এবং", "এর", "জানুন", "কী", "কেন", "হলো", "নিয়ে", "করেছেন", "চলছে", "হবে"]
-            core_keywords = [w for w in words if w not in stop_words and len(w) > 1]
-            
-            search_seed = core_keywords[0] if core_keywords else headline_clean
-            yt_suggestions = []
-            try:
-                url = f"https://suggestqueries.google.com/complete/search?client=youtube&ds=yt&hl=bn&q={urllib.parse.quote(search_seed)}"
-                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-                with urllib.request.urlopen(req) as response:
-                    res_data = json.loads(response.read().decode('utf-8', errors='ignore'))
-                    yt_suggestions = [item[0] for item in res_data[1]]
-            except Exception:
-                pass
+                    yt_title = extract_section("YT_TITLE", ai_response)
+                    yt_desc = extract_section("YT_DESC", ai_response)
+                    yt_tags = extract_section("YT_TAGS", ai_response)
+                    comm_post = extract_section("COMMUNITY", ai_response)
+                    fb_meta = extract_section("FB_META", ai_response)
+                    tt_meta = extract_section("TIKTOK_META", ai_response)
+                    eng_cms = extract_section("ENGLISH_CMS", ai_response)
 
-            # --- ৩. এলিট লোয়ারকেস হ্যাশট্যাগ ও ট্যাগস ইঞ্জিন ---
-            base_tags = ["tbs", "tbsnews", "thebusinessstandard", "banglanews", "trending"]
-            category_tags = [kw.lower().replace(" ", "") for kw in suffix_pool]
-            all_tags_raw = category_tags + base_tags
-            clean_lowercase_tags = list(dict.fromkeys([t.strip().lower() for t in all_tags_raw]))
-            formatted_hashtags = " ".join([f"#{t}" for t in clean_lowercase_tags[:6]])
+                    # --- আউটপুট ডিসপ্লে ---
+                    st.markdown("---")
+                    st.success("🎯 সুপার ব্রেন সাকসেসফুলি ৬টি প্ল্যাটফর্মের ডেটা রেডি করেছে!")
+                    
+                    row1_c1, row1_c2, row1_c3 = st.columns(3)
+                    row2_c1, row2_c2, row2_c3 = st.columns(3)
+                    
+                    with row1_c1:
+                        st.error("📺 YouTube Video")
+                        st.write("**AI Target Title (<100 Chars):**")
+                        st.code(yt_title, language="")
+                        if len(yt_title) > 100:
+                            st.error(f"লিমিট ক্রসড: {len(yt_title)} Chars")
+                        st.write("**Optimized Description:**")
+                        st.code(yt_desc, language="")
+                        st.write("**🎯 সার্চ টैगস (Tag Box):**")
+                        st.code(yt_tags, language="")
+                        
+                    with row1_c2:
+                        st.error("📊 YT Community Post & Poll")
+                        st.write("**কমিউনিটি ট্যাব কন্টেন্ট (কপি করুন):**")
+                        st.code(comm_post, language="")
+                        
+                    with row1_c3:
+                        st.warning("🔵 FB Business Suite")
+                        st.write("**ফেসবুক কন্টেন্ট মেটা:**")
+                        st.code(fb_meta, language="")
+                        
+                    with row2_c1:
+                        st.info("🎵 TikTok & Reels")
+                        st.write("**শর্টস/টিকটক ক্যাপশন:**")
+                        st.code(tt_meta, language="")
+                        
+                    with row2_c2:
+                        st.success("📰 TBS Bangla CMS")
+                        st.write("**বাংলা ওয়েবসাইট হেডলাইন:**")
+                        st.code(headline_clean, language="")
+                        st.write("**ভিডিও বডি বিবরণ:**")
+                        st.code(given_desc if given_desc else headline_clean, language="")
+                        
+                    with row2_c3:
+                        st.success("🇬🇧 TBS English CMS")
+                        st.write("**অটো-অনূদিত ইংলিশ হেডলাইন:**")
+                        st.code(eng_cms, language="")
+                        st.caption("💡 এআই স্বয়ংক্রিয়ভাবে খবরের গুরুত্ব বুঝে প্রফেশনাল ইংলিশ টাইটেল তৈরি করেছে।")
 
-            # মেটা ট্যাগ কম্বিনেশন
-            tbs_meta = ["tbs news", "the business standard", "bangla news live"]
-            combined_meta_box = list(dict.fromkeys(core_keywords + yt_suggestions[:5] + tbs_meta))
-            meta_tags_string = ", ".join(combined_meta_box)
+                    # টাস্ক ট্র্যাকার
+                    st.markdown("---")
+                    st.subheader("🚨 লাইভ ডিস্ট্রিবিউশন ট্র্যাকার")
+                    ch1, ch2, ch3, ch4, ch5, ch6 = st.columns(6)
+                    ch1.checkbox("YouTube Video Done")
+                    ch2.checkbox("YT Community Done")
+                    ch3.checkbox("Facebook Post Done")
+                    ch4.checkbox("TikTok Pushed")
+                    ch5.checkbox("Bangla CMS Done")
+                    ch6.checkbox("English CMS Done")
 
-            # --- ৪. আলটিমেট ইউটিউব কমিউনিটি পোস্ট জেনারেটর ---
-            community_text = f"📢 আজকের বিশেষ প্রতিবেদন:\n\n{headline_clean}\n\n"
-            if given_desc:
-                community_text += f"📌 খবরের বিবরণ:\n{given_desc.strip()[:150]}...\n\n"
-            community_text += f"👇 সম্পূর্ণ ভিডিওটি দেখতে নিচের লিংকে ক্লিক করুন:\n🔗 [ভিডিওর লিংক এখানে পেস্ট করুন]\n\n{formatted_hashtags}"
+                    with st.expander("📝 সম্পূর্ণ AI রিলিজ নোট (Raw Data)"):
+                        st.text(ai_response)
 
-            # --- ৫. গ্রিড লেআউট আউটপুট প্যানেল ---
-            st.markdown("---")
-            st.success("🎯 AI এজেন্ট সফলভাবে সব প্ল্যাটফর্মের জন্য মেটাডেটা অপ্টিমাইজ করেছে!")
-            
-            row1_col1, row1_col2, row1_col3 = st.columns(3)
-            row2_col1, row2_col2, row2_col3 = st.columns(3)
+                except Exception as e:
+                    st.error(f"এআই প্রসেসিংয়ে সমস্যা হয়েছে: {e}")
 
-            # কলাম ১: ইউটিউব ভিডিও
-            with row1_col1:
-                st.error("📺 YouTube Video SEO")
-                st.write("**Title (১০০ অক্ষরের নিচে সুরক্ষিত):**")
-                st.code(final_title, language="")
-                st.write("**Description (কোম্পানির বিবরণ + এলিট হ্যাশট্যাগ):**")
-                desc_content = given_desc.strip() if given_desc else headline_clean
-                st.code(f"{desc_content}\n\n{formatted_hashtags}", language="")
-                st.write("**🎯 সার্চ ট্যাগস (Tag Box):**")
-                st.code(meta_tags_string, language="")
-
-            # কলাম ২: ইউটিউব কমিউনিটি পোস্ট
-            with row1_col2:
-                st.error("📊 YouTube Community Post")
-                st.write("**কমিউনিটি ট্যাব টেক্সট (অডিয়েন্স এনগেজমেন্ট বুস্টার):**")
-                st.code(community_text, language="")
-                st.info("💡 টিপস: এই পোস্টটি করার সময় চ্যানেলে একটি পোল (Poll) ক্রিয়েট করে দিলে ইমপ্রেশন ৩ গুণ বেড়ে যায়।")
-
-            # কলাম ৩: ফেসবুক ভিডিও
-            with row1_col3:
-                st.warning("🔵 FB Business Suite")
-                st.write("**FB Title:**")
-                st.code(headline_clean, language="")
-                st.write("**FB Description:**")
-                st.code(f"{desc_content}\n\n{formatted_hashtags} #facebookvideo", language="")
-
-            # কলাম ৪: টিকটক ও রিলস
-            with row2_col1:
-                st.info("🎵 TikTok & Reels")
-                st.write("**Reels/Shorts Title:**")
-                st.code(final_title, language="")
-                st.write("**Smart Lowercase Hashtags:**")
-                st.code(f"{formatted_hashtags} #shorts #reelsviral", language="")
-
-            # কলাম ৫: টিবিএস বাংলা সিএমএস
-            with row2_col2:
-                st.success("📰 TBS Bangla CMS")
-                st.write("**Headline:**")
-                st.code(headline_clean, language="")
-                st.write("**Video Description Box:**")
-                st.code(desc_content, language="")
-
-            # কলাম ৬: টিবিএস ইংলিশ সিএমএস
-            with row2_col3:
-                st.success("🇬🇧 TBS English CMS")
-                st.write("**Headline:**")
-                st.code(headline_clean, language="")
-                st.write("**Embed Body:**")
-                st.code(desc_content, language="")
-
-# ----------------- 🔍 ট্যাব ২: প্রতিদ্বন্দী স্ক্র্যাপার (সুরক্ষিত) -----------------
+# ----------------- 🔍 ট্যাব ২: প্রতিদ্বন্দী স্ক্র্যাপার (অপরিবর্তিত ও নিরাপদ) -----------------
 with tab2:
     st.header("প্রতিদ্বন্দী ভিডিওর ভেতরের আসল Tags এবং Hashtags স্ক্র্যাপার")
     keyword = st.text_input("সার্চ কিওয়ার্ডটি লিখুন:", placeholder="যেমন: বাজেট ২০২৬ বাংলাদেশ", key="tab2_kw")
@@ -160,7 +163,7 @@ with tab2:
 
     if st.button("SEO এনালাইসিস শুরু করুন 🚀", key="tab2_btn"):
         if not api_key:
-            st.error("দয়া করে বাম পাশের সাইডবারে আপনার ইউটিউব API Key টি দিন।")
+            st.error("দয়া করে বাম পাশের সাইডবারে আপনার ইউটিউব Data API Key টি দিন।")
         elif not keyword:
             st.warning("আগে একটি কিওয়ার্ড লিখুন!")
         else:

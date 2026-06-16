@@ -27,6 +27,10 @@ clean_gemini_key = gemini_key.strip() if gemini_key else ""
 clean_api_key = api_key.strip() if api_key else ""
 clean_model_type = model_type.strip()
 
+# 🧠 স্ট্রিমলিট লাইভ মেমোরি লক ইনিশিয়ালাইজেশন (যাতে টিক দিলে ডেটা না হারায়)
+if 'ai_output' not in st.session_state:
+    st.session_state['ai_output'] = None
+
 # 🖥️ ট্যাব বিন্যাস
 tab1, tab2 = st.tabs(["⚡ Super Brain Optimizer", "🔍 Deep Competitor Scraper"])
 
@@ -34,11 +38,10 @@ tab1, tab2 = st.tabs(["⚡ Super Brain Optimizer", "🔍 Deep Competitor Scraper
 with tab1:
     st.markdown("### 📥 সেন্ট্রাল ডেটা ইনপুট হাব")
     
-    # ডিরেক্ট প্ল্যাটফর্ম লিংক
+    # ডিরেক্ট প্ল্যাটফর্ম লিংক (ক্লিন ভিউ)
     st.markdown("""
-    | 🔗 YouTube Studio | 🔗 Meta Business Suite | 🔗 TikTok Upload | 🔗 TBS Bangla CMS | 🔗 TBS English CMS |
-    | :---: | :---: | :---: | :---: | :---: |
-    | [Open Studio](https://studio.youtube.com) | [Open Meta](https://business.facebook.com) | [Open TikTok](https://www.tiktok.com/creator-center/upload) | [Open Bangla CMS](https://tbsnews.net/bangla) | [Open English CMS](https://tbsnews.net) |
+    | 📺 YouTube Studio | 🔵 Meta Business Suite | 📰 TBS Bangla CMS | 🇬🇧 TBS English CMS |
+    | :---: | :---: | :---: | :---: |
     """, unsafe_allow_html=True)
     
     headline = st.text_input("১. কোম্পানি থেকে দেওয়া মূল Headline বা নিউজ কনটেক্সট দিন:", placeholder="যেমন: প্রতিরক্ষায় আরও শক্তিশালী হবে বাংলাদেশ")
@@ -46,13 +49,13 @@ with tab1:
 
     if st.button("🧠 সুপার ব্রেন অপ্টিমাইজেশন রান করুন 🚀"):
         if not headline:
-            st.warning("আগে একটি হেডলাইন ইনপুট দিন!")
+            st.warning("আগে একটি হেডлайн ইনপুট দিন!")
         elif not clean_gemini_key:
             st.error("দয়া করে বাম পাশের সাইডবারে আপনার ফ্রি Gemini AI Key টি দিন।")
         else:
             with st.spinner(f"গুগল জেমিনি এআই ({clean_model_type}) আপনার নিউজের কন্টেক্সট ও অ্যালগরিদম অ্যানালাইসিস করছে..."):
                 
-                # --- এআই প্রম্পট ইঞ্জিনিয়ারিং ---
+                # --- এআই প্রম্পট ইঞ্জিনিয়ারিং ---
                 prompt = f"""
                 Act as an elite YouTube News SEO Specialist for 'The Business Standard (TBS)' news channel.
                 Analyze the following news headline and description to generate hyper-optimized metadata for maximum views and organic reach.
@@ -69,7 +72,6 @@ with tab1:
                 [YT_TAGS]: 15 highly searched semantic keywords separated by commas for the YouTube tags box.
                 [COMMUNITY]: A catchy YouTube Community Post text. Include an engaging hook question, a 2-line summary, a Call-to-Action to watch the video, lowercase hashtags, and suggest a 4-option interactive Poll question.
                 [FB_META]: Facebook Title and optimized Facebook Description with hashtags.
-                [TIKTOK_META]: A punchy, short TikTok/Reels caption packed with viral lowercase hashtags.
                 [ENGLISH_CMS]: Translate or adapt the Bengali headline into a powerful, professional English headline for the TBS English Website CMS.
                 """
                 
@@ -81,7 +83,6 @@ with tab1:
                     req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers=headers)
                     with urllib.request.urlopen(req) as response:
                         res_data = json.loads(response.read().decode('utf-8'))
-                        # ফিক্সড লাইন: এখানে contents এর বদলে সঠিক 'candidates' রেসপন্স ফরম্যাট ব্যবহার করা হয়েছে
                         ai_response = res_data['candidates'][0]['content']['parts'][0]['text']
                     
                     # --- ডাটা পার্সিং ---
@@ -95,67 +96,17 @@ with tab1:
                         except:
                             return "AI Generation failed for this block."
 
-                    yt_title = extract_section("YT_TITLE", ai_response)
-                    yt_desc = extract_section("YT_DESC", ai_response)
-                    yt_tags = extract_section("YT_TAGS", ai_response)
-                    comm_post = extract_section("COMMUNITY", ai_response)
-                    fb_meta = extract_section("FB_META", ai_response)
-                    tt_meta = extract_section("TIKTOK_META", ai_response)
-                    eng_cms = extract_section("ENGLISH_CMS", ai_response)
-
-                    # --- আউটপুট ডিসপ্লে ---
-                    st.markdown("---")
-                    st.success(f"🎯 সুপার ব্রেন ({clean_model_type}) সাকসেসফুলি ৬টি প্ল্যাটফর্মের ডেটা রেডি করেছে!")
-                    
-                    row1_c1, row1_c2, row1_c3 = st.columns(3)
-                    row2_c1, row2_c2, row2_c3 = st.columns(3)
-                    
-                    with row1_c1:
-                        st.error("📺 YouTube Video")
-                        st.write("**AI Target Title (<100 Chars):**")
-                        st.code(yt_title, language="")
-                        st.write("**Optimized Description:**")
-                        st.code(yt_desc, language="")
-                        st.write("**🎯 সার্চ Tags (Tag Box):**")
-                        st.code(yt_tags, language="")
-                        
-                    with row1_c2:
-                        st.error("📊 YT Community Post & Poll")
-                        st.write("**কমিউনিটি ট্যাব কন্টেন্ট:**")
-                        st.code(comm_post, language="")
-                        
-                    with row1_c3:
-                        st.warning("🔵 FB Business Suite")
-                        st.write("**ফেসবুক কন্টেন্ট মেটা:**")
-                        st.code(fb_meta, language="")
-                        
-                    with row2_c1:
-                        st.info("🎵 TikTok & Reels")
-                        st.write("**শর্টস/টিকটক ক্যাপশন:**")
-                        st.code(tt_meta, language="")
-                        
-                    with row2_c2:
-                        st.success("📰 TBS Bangla CMS")
-                        st.write("**বাংলা ওয়েবসাইট হেডলাইন:**")
-                        st.code(headline.strip(), language="")
-                        st.write("**ভিডিও বডি বিবরণ:**")
-                        st.code(given_desc if given_desc else headline.strip(), language="")
-                        
-                    with row2_c3:
-                        st.success("🇬🇧 TBS English CMS")
-                        st.write("**অটো-অনূদিত ইংলিশ হেডলাইন:**")
-                        st.code(eng_cms, language="")
-
-                    # টাস্ক ট্র্যাকার
-                    st.markdown("---")
-                    st.subheader("🚨 লাইভ ডিস্ট্রিবিউশন ট্র্যাকার")
-                    ch1, ch2, ch3, ch4, ch5, ch6 = st.columns(6)
-                    ch1.checkbox("YouTube Video Done")
-                    ch2.checkbox("YT Community Done")
-                    ch3.checkbox("Facebook Post Done")
-                    ch4.checkbox("TikTok Pushed")
-                    ch5.checkbox("Bangla CMS Done")
-                    ch6.checkbox("English CMS Done")
+                    # সেশন স্টেটে ডেটা সেভ (লক) করা হচ্ছে
+                    st.session_state['ai_output'] = {
+                        "yt_title": extract_section("YT_TITLE", ai_response),
+                        "yt_desc": extract_section("YT_DESC", ai_response),
+                        "yt_tags": extract_section("YT_TAGS", ai_response),
+                        "comm_post": extract_section("COMMUNITY", ai_response),
+                        "fb_meta": extract_section("FB_META", ai_response),
+                        "eng_cms": extract_section("ENGLISH_CMS", ai_response),
+                        "headline_clean": headline.strip(),
+                        "desc_clean": given_desc.strip() if given_desc else headline.strip()
+                    }
 
                 except urllib.error.HTTPError as he:
                     try:
@@ -163,63 +114,68 @@ with tab1:
                         err_detail = err_body.get('error', {}).get('message', 'Unknown Google API Issue')
                         st.error(f"❌ গুগল এআই সার্ভার এরর (400): {err_detail}")
                     except:
-                        st.error(f"❌ HTTP Error 400: {he.reason}. মডেল বা এপিআই কি সঠিক নয়।")
+                        st.error(f"❌ HTTP Error 400: {he.reason}")
                 except Exception as e:
                     st.error(f"সাধারণ সমস্যা: {e}")
 
+    # --- মেমোরি থেকে আউটপুট ডিসপ্লে (বাটন ক্লিকের বাইরে, ফলে টিক দিলে মুছবে না) ---
+    if st.session_state['ai_output'] is not None:
+        data = st.session_state['ai_output']
+        
+        st.markdown("---")
+        st.success("🎯 মেটাডেটা সফলভাবে জেনারেট এবং মেমোরিতে লক হয়েছে। এখন নিচে নির্ভয়ে টিক দিন!")
+        
+        # ১. ইউটিউব ভিডিও সেকশনকে সবার ওপরে বড় করে দেখানো হলো
+        st.error("📺 YouTube Video SEO Panel (প্রধান ভিউ)")
+        col_t1, col_t2 = st.columns([2, 1])
+        with col_t1:
+            st.write("**AI Target Title (<100 Chars):**")
+            st.code(data["yt_title"], language="")
+        with col_t2:
+            st.write("**🎯 সার্চ Tags (YouTube Tag Box):**")
+            st.code(data["yt_tags"], language="")
+            
+        st.write("**📝 Optimized YouTube Description (কপি করার জন্য এটি বড় বক্সে দেওয়া হলো):**")
+        st.text_area("ইউটিউব ডেসক্রিপশন বক্স (One-Click Copy):", value=data["yt_desc"], height=250)
+        
+        st.markdown("---")
+        
+        # ২. বাকি প্ল্যাটফর্মগুলোর কন্টেন্ট গ্রিড লেআউট
+        row2_c1, row2_c2, row2_c3, row2_c4 = st.columns(4)
+        
+        with row2_c1:
+            st.error("📊 YT Community Post & Poll")
+            st.write("**কমিউনিটি কন্টেন্ট:**")
+            st.code(data["comm_post"], language="")
+            
+        with row2_c2:
+            st.warning("🔵 FB Business Suite")
+            st.write("**ফেসবুক কন্টেন্ট মেটা:**")
+            st.code(data["fb_meta"], language="")
+            
+        with row2_c3:
+            st.success("📰 TBS Bangla CMS")
+            st.write("**বাংলা ওয়েবসাইট হেডলাইন:**")
+            st.code(data["headline_clean"], language="")
+            st.write("**ভিডিও বডি বিবরণ:**")
+            st.code(data["desc_clean"], language="")
+            
+        with row2_c4:
+            st.success("🇬🇧 TBS English CMS")
+            st.write("**অটো-অনূদিত ইংলিশ হেডলাইন:**")
+            st.code(data["eng_cms"], language="")
+
+        # --- ৩. নিখুঁত ডিস্ট্রিবিউশন চেকলিস্ট (টিক দিলে ডেটা উধাও হবে না) ---
+        st.markdown("---")
+        st.subheader("🚨 লাইভ পাবলিশিং চেকলিস্ট (এখানে জাস্ট টিক মার্ক দিন)")
+        
+        ch1, ch2, ch3, ch4, ch5 = st.columns(5)
+        ch1.checkbox("YouTube Video Done", key="chk_yt_v")
+        ch2.checkbox("YT Community Done", key="chk_yt_c")
+        ch3.checkbox("Facebook Post Done", key="chk_fb")
+        ch4.checkbox("Bangla CMS Done", key="chk_cms_b")
+        ch5.checkbox("English CMS Done", key="chk_cms_e")
+
 # ----------------- 🔍নোট: ফিক্সডস ট্যাব ২ (Deep Competitor Scraper) -----------------
 with tab2:
-    st.header("প্রতিদ্বন্দী ভিডিওর ভেতরের আসল Tags এবং Hashtags স্ক্র্যাপার")
-    keyword = st.text_input("সার্চ কিওয়ার্ডটি লিখুন:", placeholder="যেমন: বাজেট ২০২৬ বাংলাদেশ", key="tab2_kw")
-    max_results = st.slider("কয়টি প্রতিদ্বন্দী ভিডিও অ্যানালাইসিস করবেন?", 5, 20, 10)
-
-    if st.button("SEO এনালাইসিস শুরু করুন 🚀", key="tab2_btn"):
-        if not clean_api_key:
-            st.error("দয়া করে বাম পাশের সাইডবারে আপনার ইউটিউব Data API Key টি দিন।")
-        elif not keyword:
-            st.warning("আগে একটি কিওয়ার্ড লিখুন!")
-        else:
-            with st.spinner("ইউটিউব থেকে আসল Tags স্ক্র্যাপ করা হচ্ছে..."):
-                try:
-                    youtube = build('youtube', 'v3', developerKey=clean_api_key)
-                    search_response = youtube.search().list(
-                        q=keyword, part='snippet', maxResults=max_results, type='video', relevanceLanguage='bn'
-                    ).execute()
-                    
-                    video_ids = [item['id']['videoId'] for item in search_response.get('items', [])]
-                    if not video_ids:
-                        st.warning("কোনো ভিডিও পাওয়া যায়নি।")
-                    else:
-                        video_response = youtube.videos().list(id=",".join(video_ids), part='snippet').execute()
-                        titles = []
-                        all_hashtags_t2 = []
-                        all_video_tags = []
-                        
-                        for item in video_response.get('items', []):
-                            snippet_data = item.get('snippet', {})
-                            titles.append(snippet_data.get('title', ''))
-                            tags = snippet_data.get('tags', [])
-                            all_video_tags.extend(tags)
-                            hashtags = re.findall(r"#\w+", snippet_data.get('description', ''))
-                            all_hashtags_t2.extend(hashtags)
-                        
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            st.subheader("🔥 প্রতিদ্বন্দী চ্যানেলগুলোর টাইটেল ট্রেন্ড")
-                            for i, t in enumerate(titles, 1):
-                                st.write(f"**{i}.** {t}")
-                        with col2:
-                            st.subheader("🏷️ ট্রেন্ডিং হ্যাশট্যাগসমূহ")
-                            if all_hashtags_t2:
-                                hashtag_counts = Counter(all_hashtags_t2)
-                                for tag, count in hashtag_counts.most_common(10):
-                                    st.write(f" `{tag}` ({count} বার)")
-                        
-                        st.markdown("---")
-                        st.subheader("🎯 কপি করার জন্য আসল ভিডিও ট্যাগ")
-                        if all_video_tags:
-                            tag_counts = Counter(all_video_tags)
-                            top_tags = [tag for tag, count in tag_counts.most_common(20)]
-                            st.text_area("Copy-Paste করার জন্য রেদি ট্যাগসমূহ:", value=", ".join(top_tags), height=120)
-                except Exception as e:
-                    st.error(f"দুঃখিত, একটি সমস্যা হয়েছে: {e}")
+    st.header("প্রতিদ্বন্দী ভিডিওর ভেতরের

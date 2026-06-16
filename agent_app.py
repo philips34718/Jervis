@@ -27,7 +27,7 @@ clean_gemini_key = gemini_key.strip() if gemini_key else ""
 clean_api_key = api_key.strip() if api_key else ""
 clean_model_type = model_type.strip()
 
-# 🧠 স্ট্রিমলিট লাইভ মেমোরি লক ইনিশিয়ালাইজেশন (যাতে টিক দিলে ডেটা না হারায়)
+# 🧠 স্ট্রিমলিট লাইভ মেমোরি লক (যাতে টিক দিলে ডেটা না হারায়)
 if 'ai_output' not in st.session_state:
     st.session_state['ai_output'] = None
 
@@ -38,18 +38,12 @@ tab1, tab2 = st.tabs(["⚡ Super Brain Optimizer", "🔍 Deep Competitor Scraper
 with tab1:
     st.markdown("### 📥 সেন্ট্রাল ডেটা ইনপুট হাব")
     
-    # ডিরেক্ট প্ল্যাটফর্ম লিংক (ক্লিন ভিউ)
-    st.markdown("""
-    | 📺 YouTube Studio | 🔵 Meta Business Suite | 📰 TBS Bangla CMS | 🇬🇧 TBS English CMS |
-    | :---: | :---: | :---: | :---: |
-    """, unsafe_allow_html=True)
-    
     headline = st.text_input("১. কোম্পানি থেকে দেওয়া মূল Headline বা নিউজ কনটেক্সট দিন:", placeholder="যেমন: প্রতিরক্ষায় আরও শক্তিশালী হবে বাংলাদেশ")
     given_desc = st.text_area("২. কোম্পানি থেকে দেওয়া বিবরণ (Description/Article Body):", placeholder="এখানে বিবরণটি পেস্ট করুন...")
 
     if st.button("🧠 সুপার ব্রেন অপ্টিমাইজেশন রান করুন 🚀"):
         if not headline:
-            st.warning("আগে একটি হেডлайн ইনপুট দিন!")
+            st.warning("আগে একটি হেডলাইন ইনপুট দিন!")
         elif not clean_gemini_key:
             st.error("দয়া করে বাম পাশের সাইডবারে আপনার ফ্রি Gemini AI Key টি দিন।")
         else:
@@ -96,7 +90,7 @@ with tab1:
                         except:
                             return "AI Generation failed for this block."
 
-                    # সেশন স্টেটে ডেটা সেভ (লক) করা হচ্ছে
+                    # লাইভ মেমোরিতে লক করা হচ্ছে
                     st.session_state['ai_output'] = {
                         "yt_title": extract_section("YT_TITLE", ai_response),
                         "yt_desc": extract_section("YT_DESC", ai_response),
@@ -118,14 +112,14 @@ with tab1:
                 except Exception as e:
                     st.error(f"সাধারণ সমস্যা: {e}")
 
-    # --- মেমোরি থেকে আউটপুট ডিসপ্লে (বাটন ক্লিকের বাইরে, ফলে টিক দিলে মুছবে না) ---
+    # --- লাইভ মেমোরি থেকে ডেটা ডিসপ্লে (টিক দিলে ডেটা আর হারাবে না) ---
     if st.session_state['ai_output'] is not None:
         data = st.session_state['ai_output']
         
         st.markdown("---")
         st.success("🎯 মেটাডেটা সফলভাবে জেনারেট এবং মেমোরিতে লক হয়েছে। এখন নিচে নির্ভয়ে টিক দিন!")
         
-        # ১. ইউটিউব ভিডিও সেকশনকে সবার ওপরে বড় করে দেখানো হলো
+        # ইউটিউব মেইন প্যানেল (বড় হাইলাইটেড ভিউ)
         st.error("📺 YouTube Video SEO Panel (প্রধান ভিউ)")
         col_t1, col_t2 = st.columns([2, 1])
         with col_t1:
@@ -135,12 +129,12 @@ with tab1:
             st.write("**🎯 সার্চ Tags (YouTube Tag Box):**")
             st.code(data["yt_tags"], language="")
             
-        st.write("**📝 Optimized YouTube Description (কপি করার জন্য এটি বড় বক্সে দেওয়া হলো):**")
-        st.text_area("ইউটিউব ডেসক্রিপশন বক্স (One-Click Copy):", value=data["yt_desc"], height=250)
+        st.write("**📝 Optimized YouTube Description (One-Click Copy Box):**")
+        st.text_area("ইউটিউব ডেসক্রিপশন বক্স:", value=data["yt_desc"], height=230)
         
         st.markdown("---")
         
-        # ২. বাকি প্ল্যাটফর্মগুলোর কন্টেন্ট গ্রিড লেআউট
+        # বাকি প্ল্যাটফর্মগুলোর গ্রিড
         row2_c1, row2_c2, row2_c3, row2_c4 = st.columns(4)
         
         with row2_c1:
@@ -155,17 +149,17 @@ with tab1:
             
         with row2_c3:
             st.success("📰 TBS Bangla CMS")
-            st.write("**বাংলা ওয়েবসাইট হেডলাইন:**")
+            st.write("**বাংলা ওয়েবসাইট হেডлайн:**")
             st.code(data["headline_clean"], language="")
             st.write("**ভিডিও বডি বিবরণ:**")
             st.code(data["desc_clean"], language="")
             
         with row2_c4:
             st.success("🇬🇧 TBS English CMS")
-            st.write("**অটো-অনূদিত ইংলিশ হেডলাইন:**")
+            st.write("**অটো-অনূদিত ইংলিশ হেডлайн:**")
             st.code(data["eng_cms"], language="")
 
-        # --- ৩. নিখুঁত ডিস্ট্রিবিউশন চেকলিস্ট (টিক দিলে ডেটা উধাও হবে না) ---
+        # --- ক্লিন ডিস্ট্রিবিউশন চেকলিস্ট ---
         st.markdown("---")
         st.subheader("🚨 লাইভ পাবলিশিং চেকলিস্ট (এখানে জাস্ট টিক মার্ক দিন)")
         
@@ -176,6 +170,59 @@ with tab1:
         ch4.checkbox("Bangla CMS Done", key="chk_cms_b")
         ch5.checkbox("English CMS Done", key="chk_cms_e")
 
-# ----------------- 🔍নোট: ফিক্সডস ট্যাব ২ (Deep Competitor Scraper) -----------------
+# ----------------- 🔍 ট্যাব ২: প্রতিদ্বন্দী স্ক্র্যাপার (সম্পূর্ণ ফিক্সড) -----------------
 with tab2:
-    st.header("প্রতিদ্বন্দী ভিডিওর ভেতরের
+    st.header("প্রতিদ্বন্দী ভিডিওর ভেতরের আসল Tags এবং Hashtags স্ক্র্যাপার")
+    keyword = st.text_input("সার্চ কিওয়ার্ডটি লিখুন:", placeholder="যেমন: বাজেট ২০২৬ বাংলাদেশ", key="tab2_kw")
+    max_results = st.slider("কয়টি প্রতিদ্বন্দী ভিডিও অ্যানালাইসিস করবেন?", 5, 20, 10)
+
+    if st.button("SEO এনালাইসিস শুরু করুন 🚀", key="tab2_btn"):
+        if not clean_api_key:
+            st.error("দয়া করে বাম পাশের সাইডবারে আপনার ইউটিউব Data API Key টি দিন।")
+        elif not keyword:
+            st.warning("আগে একটি কিওয়ার্ড লিখুন!")
+        else:
+            with st.spinner("ইউটিউব থেকে আসল Tags স্ক্র্যাপ করা হচ্ছে..."):
+                try:
+                    youtube = build('youtube', 'v3', developerKey=clean_api_key)
+                    search_response = youtube.search().list(
+                        q=keyword, part='snippet', maxResults=max_results, type='video', relevanceLanguage='bn'
+                    ).execute()
+                    
+                    video_ids = [item['id']['videoId'] for item in search_response.get('items', [])]
+                    if not video_ids:
+                        st.warning("কোনো ভিডিও পাওয়া যায়নি।")
+                    else:
+                        video_response = youtube.videos().list(id=",".join(video_ids), part='snippet').execute()
+                        titles = []
+                        all_hashtags_t2 = []
+                        all_video_tags = []
+                        
+                        for item in video_response.get('items', []):
+                            snippet_data = item.get('snippet', {})
+                            titles.append(snippet_data.get('title', ''))
+                            tags = snippet_data.get('tags', [])
+                            all_video_tags.extend(tags)
+                            hashtags = re.findall(r"#\w+", snippet_data.get('description', ''))
+                            all_hashtags_t2.extend(hashtags)
+                        
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.subheader("🔥 প্রতিদ্বন্দী চ্যানেলগুলোর টাইটেল ট্রেন্ড")
+                            for i, t in enumerate(titles, 1):
+                                st.write(f"**{i}.** {t}")
+                        with col2:
+                            st.subheader("🏷️ ট্রেন্ডিং হ্যাশট্যাগসমূহ")
+                            if all_hashtags_t2:
+                                hashtag_counts = Counter(all_hashtags_t2)
+                                for tag, count in hashtag_counts.most_common(10):
+                                    st.write(f" `{tag}` ({count} বার)")
+                        
+                        st.markdown("---")
+                        st.subheader("🎯 কপি করার জন্য আসল ভিডিও ট্যাগ")
+                        if all_video_tags:
+                            tag_counts = Counter(all_video_tags)
+                            top_tags = [tag for tag, count in tag_counts.most_common(20)]
+                            st.text_area("Copy-Paste করার জন্য রেদি ট্যাগসমূহ:", value=", ".join(top_tags), height=120)
+                except Exception as e:
+                    st.error(f"দুঃখিত, একটি সমস্যা হয়েছে: {e}")

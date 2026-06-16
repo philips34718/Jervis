@@ -62,10 +62,10 @@ with tab1:
                 Strict Output Rules:
                 Your response must contain these exact section markers so the app can parse them:
                 [YT_TITLE]: Generate a high-CTR title. STRICT 100 character limit. Based on context, add smart English keywords/suffix (e.g., | Military | Budget | Politics). If the headline is too long, dynamically drop the branding '| The Business Standard' or shorten to '| TBS News' to keep it under 100 chars. Prioritize news keywords.
-                [YT_DESC]: Keep the original description exactly as provided by the user. Do not add conversational fillers. At the end of the description, append 5 highly viral, completely lowercase hashtags (e.g., #tbsnews #banglanews).
+                [HASHTAGS]: Generate 6 viral, completely lowercase hashtags separated by spaces (e.g., #tbsnews #banglanews #latestupdate). These will be shared across YouTube, Meta, and TikTok.
                 [YT_TAGS]: 15 highly searched semantic keywords separated by commas for the YouTube tags box.
                 [COMMUNITY]: A catchy YouTube Community Post text. Include an engaging hook question, a 2-line summary, a Call-to-Action to watch the video, lowercase hashtags, and suggest a 4-option interactive Poll question.
-                [FB_META]: Facebook Title and optimized Facebook Description with hashtags.
+                [FB_TITLE]: A punchy, click-friendly title optimized specifically for Facebook audience.
                 [ENGLISH_CMS]: Translate or adapt the Bengali headline into a powerful, professional English headline for the TBS English Website CMS.
                 """
                 
@@ -93,10 +93,10 @@ with tab1:
                     # লাইভ মেমোরিতে লক করা হচ্ছে
                     st.session_state['ai_output'] = {
                         "yt_title": extract_section("YT_TITLE", ai_response),
-                        "yt_desc": extract_section("YT_DESC", ai_response),
+                        "shared_hashtags": extract_section("HASHTAGS", ai_response),
                         "yt_tags": extract_section("YT_TAGS", ai_response),
                         "comm_post": extract_section("COMMUNITY", ai_response),
-                        "fb_meta": extract_section("FB_META", ai_response),
+                        "fb_title": extract_section("FB_TITLE", ai_response),
                         "eng_cms": extract_section("ENGLISH_CMS", ai_response),
                         "headline_clean": headline.strip(),
                         "desc_clean": given_desc.strip() if given_desc else headline.strip()
@@ -119,8 +119,8 @@ with tab1:
         st.markdown("---")
         st.success("🎯 মেটাডেটা সফলভাবে জেনারেট এবং মেমোরিতে লক হয়েছে। এখন নিচে নির্ভয়ে টিক দিন!")
         
-        # ইউটিউব মেইন প্যানেল (বড় হাইলাইটেড ভিউ)
-        st.error("📺 YouTube Video SEO Panel (প্রধান ভিউ)")
+        # ১. ইউটিউব মেইন প্যানেল ও শেয়ার্ড হ্যাশট্যাগ হাব
+        st.error("📺 YouTube Video SEO Panel")
         col_t1, col_t2 = st.columns([2, 1])
         with col_t1:
             st.write("**AI Target Title (<100 Chars):**")
@@ -129,12 +129,13 @@ with tab1:
             st.write("**🎯 সার্চ Tags (YouTube Tag Box):**")
             st.code(data["yt_tags"], language="")
             
-        st.write("**📝 Optimized YouTube Description (One-Click Copy Box):**")
-        st.text_area("ইউটিউব ডেসক্রিপশন বক্স:", value=data["yt_desc"], height=230)
+        # 🔥 শেয়ার্ড হ্যাশট্যাগ বক্স (ইউটিউব, ফেসবুক, টিকটক সব জায়গার জন্য ১টি কম্বো বক্স)
+        st.warning("🔥 Shared Hashtag Hub (এটি কপি করে YouTube, Meta এবং TikTok ডেসক্রিপশনে পেস্ট করুন)")
+        st.text_area("Universal Lowercase Hashtags (One-Click Copy):", value=data["shared_hashtags"], height=70)
         
         st.markdown("---")
         
-        # বাকি প্ল্যাটফর্মগুলোর গ্রিড
+        # ২. বাকি প্ল্যাটফর্মগুলোর গ্রিড বিন্যাস
         row2_c1, row2_c2, row2_c3, row2_c4 = st.columns(4)
         
         with row2_c1:
@@ -144,8 +145,9 @@ with tab1:
             
         with row2_c2:
             st.warning("🔵 FB Business Suite")
-            st.write("**ফেসবুক কন্টেন্ট মেটা:**")
-            st.code(data["fb_meta"], language="")
+            st.write("**ফেসবুক অপ্টিমাইজড টাইটেল:**")
+            st.code(data["fb_title"], language="")
+            st.caption("💡 ডেসক্রিপশন হিসেবে কন্টেন্ট টিমের দেওয়া লেখার নিচে উপরের মেগা হ্যাশট্যাগগুলো পেস্ট করুন।")
             
         with row2_c3:
             st.success("📰 TBS Bangla CMS")
@@ -159,16 +161,17 @@ with tab1:
             st.write("**অটো-অনূদিত ইংলিশ হেডлайн:**")
             st.code(data["eng_cms"], language="")
 
-        # --- ক্লিন ডিস্ট্রিবিউশন চেকলিস্ট ---
+        # --- ৩. আপগ্রেডেড লাইভ পাবলিশিং চেকলিস্ট (৬টি কলামে টিকটকসহ) ---
         st.markdown("---")
         st.subheader("🚨 লাইভ পাবলিশিং চেকলিস্ট (এখানে জাস্ট টিক মার্ক দিন)")
         
-        ch1, ch2, ch3, ch4, ch5 = st.columns(5)
+        ch1, ch2, ch3, ch4, ch5, ch6 = st.columns(6)
         ch1.checkbox("YouTube Video Done", key="chk_yt_v")
         ch2.checkbox("YT Community Done", key="chk_yt_c")
         ch3.checkbox("Facebook Post Done", key="chk_fb")
-        ch4.checkbox("Bangla CMS Done", key="chk_cms_b")
-        ch5.checkbox("English CMS Done", key="chk_cms_e")
+        ch4.checkbox("TikTok Pushed", key="chk_tt")
+        ch5.checkbox("Bangla CMS Done", key="chk_cms_b")
+        ch6.checkbox("English CMS Done", key="chk_cms_e")
 
 # ----------------- 🔍 ট্যাব ২: প্রতিদ্বন্দী স্ক্র্যাপার (সম্পূর্ণ ফিক্সড) -----------------
 with tab2:
@@ -178,7 +181,7 @@ with tab2:
 
     if st.button("SEO এনালাইসিস শুরু করুন 🚀", key="tab2_btn"):
         if not clean_api_key:
-            st.error("দয়া করে বাম পাশের সাইডবারে আপনার ইউটিউব Data API Key টি দিন।")
+            st.error("দয়া করে বাংলাদেশ সময় অনুযায়ী বাম পাশের সাইডবারে আপনার ইউটিউব Data API Key টি দিন।")
         elif not keyword:
             st.warning("আগে একটি কিওয়ার্ড লিখুন!")
         else:

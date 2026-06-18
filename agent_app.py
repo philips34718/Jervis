@@ -43,33 +43,27 @@ with tab1:
 
     if st.button("🧠 সুপার ব্রেন অপ্টিমাইজেশন রান করুন 🚀"):
         if not headline:
-            st.warning("আগে একটি হেডлайн ইনপুট দিন!")
+            st.warning("আগে একটি হেডলাইন ইনপুট দিন!")
         elif not clean_gemini_key:
             st.error("দয়া করে বাম পাশের সাইডবারে আপনার ফ্রি Gemini AI Key টি দিন।")
         else:
-            with st.spinner(f"গুগল জেমিনি এআই ({clean_model_type}) আপনার নিউজ অ্যানালাইসিস করছে..."):
+            with st.spinner(f"গুগল ஜেমিনি এআই ({clean_model_type}) আপনার নিউজ অ্যানালাইসিস করছে..."):
                 
-                # --- এআই প্রম্পট ইঞ্জিনিয়ারিং ---
+                # এআই শুধু রিলিজ এলিমেন্ট জেনারেট করবে, ফরম্যাটিং পাইথন নিজে হ্যান্ডেল করবে
                 prompt = f"""
-                Act as an elite YouTube News SEO Specialist for 'The Business Standard (TBS)' news channel.
-                Analyze the following news headline and description to generate hyper-optimized metadata for maximum views and organic reach.
+                Act as an elite YouTube News SEO Specialist for 'The Business Standard (TBS)'.
+                Analyze the headline and description to provide elements for 2026 search trends.
                 
-                Current Context: Year 2026 Search Trends. All hashtags MUST be 100% lowercase with no spaces.
-                
-                News Headline: {headline}
-                News Description: {given_desc if given_desc else "No description provided."}
+                Headline: {headline}
+                Description: {given_desc}
                 
                 Strict Output Rules:
-                Your response must contain these exact section markers so the app can parse them:
-                [YT_TITLE]: Generate a high-CTR title. STRICT 100 character limit. Based on context, add smart English keywords/suffix (e.g., | Military | Budget | Politics). If the headline is too long, dynamically drop the branding '| The Business Standard' or shorten to '| TBS News' to keep it under 100 chars. Prioritize news keywords.
-                [HASHTAGS]: Generate 6 viral, completely lowercase hashtags separated by spaces. You MUST strictly include #tbsnews, #thebusinessstandard, and #tbs inside this block along with 3 other keywords.
-                [ENGLISH_CMS]: Translate or adapt the Bengali headline into a powerful, professional English headline for the TBS English Website CMS.
-                [YT_TAGS]: This is for the YouTube Tag Box. It MUST be formatted as a single line separated by commas. You MUST include:
-                1. The exact full Bengali headline ({headline})
-                2. The exact full English headline that you generated for [ENGLISH_CMS]
-                3. The exact brand tags: tbs, tbs news, the business standard
-                4. 10 additional viral semantic keywords related to the news context.
-                [COMMUNITY]: A catchy YouTube Community Post text. Include an engaging hook question, a 2-line summary, a Call-to-Action to watch the video, lowercase hashtags, and suggest a 4-option interactive Poll question.
+                Your response must contain these exact section markers:
+                [ENGLISH_TITLE]: Accurate high-quality professional English translation of the headline.
+                [SUFFIX]: A clean English SEO suffix based on context (e.g., | Military | Budget | World Cup 2026).
+                [CONTEXT_HASHTAGS]: 2 or 3 completely lowercase viral hashtags separated by spaces related specifically to the news context (DO NOT include brand names like tbs).
+                [KEYWORDS]: 10 viral semantic keywords separated by commas for the tag box.
+                [COMMUNITY]: A catchy text for YouTube Community Post with hook question, summary, and a 4-option Poll suggestion.
                 """
                 
                 try:
@@ -82,101 +76,119 @@ with tab1:
                         res_data = json.loads(response.read().decode('utf-8'))
                         ai_response = res_data['candidates'][0]['content']['parts'][0]['text']
                     
-                    # --- ডাটা পার্সিং ---
+                    # --- ডাটা পার্সিং লজিক ---
                     def extract_section(marker, text):
-                        pattern = rf"\[{marker}\]:(.*?)(?=\[\w+\||\Z)"
+                        pattern = rf"\[{marker}\]:(.*?)(?=\[\w+\]|\Z)"
                         match = re.search(pattern, text, re.DOTALL)
                         if match:
                             return match.group(1).strip()
                         try:
                             return text.split(f"[{marker}]:")[1].split("[")[0].strip()
                         except:
-                            return "AI Generation failed for this block."
+                            return ""
+
+                    eng_title = extract_section("ENGLISH_TITLE", ai_response)
+                    ai_suffix = extract_section("SUFFIX", ai_response)
+                    context_hashtags = extract_section("CONTEXT_HASHTAGS", ai_response)
+                    ai_keywords = extract_section("KEYWORDS", ai_response)
+                    comm_post = extract_section("COMMUNITY", ai_response)
+
+                    # --- পাইথন ডিটারমিনিস্টিক ইঞ্জিন (আপনার রুল বুক অনুযায়ী সাজানো) ---
+                    headline_clean = headline.strip()
+                    desc_clean = given_desc.strip() if given_desc else headline_clean
+                    
+                    # ১. ইউনিভার্সাল ব্র্যান্ডেড হ্যাশট্যাগ কম্বো (ম্যাক্স ৩টি ব্র্যান্ড হ্যাশট্যাগ)
+                    brand_hashtags = "#tbsnews #thebusinessstandard #tbs"
+                    final_shared_hashtags = f"{brand_hashtags} {context_hashtags.lower()}"
+
+                    # ২. টাইটেল ১০০ ক্যারেক্টার সিকিউরিটি লজিক
+                    suffix_formatted = f" {ai_suffix}" if ai_suffix else ""
+                    yt_title = f"{headline_clean}{suffix_formatted} | The Business Standard"
+                    if len(yt_title) > 100:
+                        yt_title = f"{headline_clean}{suffix_formatted} | TBS News"
+                    if len(yt_title) > 100:
+                        yt_title = f"{headline_clean}{suffix_formatted}"
+                    if len(yt_title) > 100:
+                        yt_title = headline_clean[:100]
+
+                    # ৩. সুনির্দিষ্ট প্ল্যাটফর্ম ভিত্তিক ডেসক্রিপশন জেনারেটর (১ লাইন গ্যাপ লজিক)
+                    yt_description = f"{eng_title}\n\n{desc_clean}\n\n{final_shared_hashtags}"
+                    fb_post_text = f"{headline_clean}\n\n{final_shared_hashtags}"
+                    tiktok_post_text = f"{headline_clean}\n{desc_clean}\n\n{final_shared_hashtags}"
+
+                    # ৪. রেডি-টু-পেস্ট ট্যাগ বক্স কম্বিনেশন
+                    brand_tags = "tbs, tbs news, the business standard"
+                    yt_tags_box = f"{headline_clean}, {eng_title}, {brand_tags}, {ai_keywords}"
 
                     # লাইভ মেমোরি স্টেটে ডেটা সেভ (লক)
                     st.session_state['ai_output'] = {
-                        "yt_title": extract_section("YT_TITLE", ai_response),
-                        "shared_hashtags": extract_section("HASHTAGS", ai_response),
-                        "yt_tags": extract_section("YT_TAGS", ai_response),
-                        "comm_post": extract_section("COMMUNITY", ai_response),
-                        "eng_cms": extract_section("ENGLISH_CMS", ai_response),
-                        "headline_clean": headline.strip(),
-                        "desc_clean": given_desc.strip() if given_desc else headline.strip()
+                        "yt_title": yt_title,
+                        "yt_tags": yt_tags_box,
+                        "yt_desc": yt_description,
+                        "fb_text": fb_post_text,
+                        "tt_text": tiktok_post_text,
+                        "comm_post": comm_post
                     }
 
                 except urllib.error.HTTPError as he:
                     try:
                         err_body = json.loads(he.read().decode('utf-8'))
-                        err_detail = err_body.get('error', {}).get('message', 'Unknown Google API Issue')
-                        st.error(f"❌ গুগল এআই সার্ভার এরর (400): {err_detail}")
+                        st.error(f"❌ গুগল এআই সার্ভার এরর (400): {err_body.get('error', {}).get('message', 'Unknown Issue')}")
                     except:
-                        st.error(f"❌ HTTP Error 400: {he.reason}")
+                        st.error(f"❌ HTTP Error 400")
                 except Exception as e:
                     st.error(f"সাধারণ সমস্যা: {e}")
 
-    # --- লাইভ মেমোরি ডিসপ্লে প্যানেল (টিক দিলে ডেটা মুছবে না) ---
+    # --- লাইভ মেমোরি থেকে ডেটা ডিসপ্লে (টিক দিলে ডেটা আর হারাবে না) ---
     if st.session_state['ai_output'] is not None:
         data = st.session_state['ai_output']
         
         st.markdown("---")
-        st.success("🎯 মেটাডেটা সফলভাবে জেনারেট এবং মেমোরিতে লক হয়েছে। এখন নিচে নির্ভয়ে টিক দিন!")
+        st.success("🎯 মেটাডেটা সফলভাবে জেনারেট এবং মেমোরিতে লক হয়েছে। নিচে নির্ভয়ে টিক মার্ক দিন!")
         
-        # ১. ইউটিউব মেইন প্যানেল (টাইটেল এবং ট্যাগস)
-        st.error("📺 YouTube Video Panel")
+        # 📺 ১. ইউটিউব ভিডিও সেকশন (প্রধান এবং বড় ভিউ)
+        st.error("📺 YouTube Video Deployment Hub")
         col_t1, col_t2 = st.columns([2, 1])
         with col_t1:
             st.write("**AI Target Title (<100 Chars):**")
             st.code(data["yt_title"], language="")
         with col_t2:
-            st.write("**🎯 সার্চ Tags (YouTube Tag Box):**")
+            st.write("**🎯 সার্চ Tags (ডাইরেক্ট পেস্ট বক্স):**")
             st.code(data["yt_tags"], language="")
             
-        # 📺 ইউটিউব ডেসক্রিপশন বক্স (আপনার দেওয়া নির্দিষ্ট স্ট্রাকচার অনুযায়ী অটো-ফরম্যাটেড)
-        # English Title + Bangla Desc + 1 line gap + Hashtags
-        formatted_yt_desc = f"{data['eng_cms']}\n\n{data['desc_clean']}\n\n{data['shared_hashtags']}"
-        st.write("**📝 Optimized YouTube Description (One-Click Copy Box):**")
-        st.text_area("ইউটিউব ডেসক্রিপশন বক্স:", value=formatted_yt_desc, height=220)
+        st.write("**📝 YouTube Description Box (English Title + Bangla Desc + Gap + Hashtags):**")
+        st.text_area("YouTube Copy Area:", value=data["yt_desc"], height=200)
         
         st.markdown("---")
         
-        # ২. বাকি প্ল্যাটফর্মগুলোর গ্রিড বিন্যাস (ফেসবুক ও টিকটকের কাস্টম ডেসক্রিপশনসহ)
-        row2_c1, row2_c2, row2_c3, row2_c4 = st.columns(4)
+        # 📱 ২. ফেসবুক, টিকটক এবং কমিউনিটি পোস্ট গ্রিড (১০০% ক্লিন)
+        row2_c1, row2_c2, row2_c3 = st.columns(3)
         
         with row2_c1:
-            st.error("📊 YT Community Post & Poll")
-            st.write("**কমিউনিটি কন্টেন্ট:**")
-            st.code(data["comm_post"], language="")
+            st.warning("🔵 Facebook Post Hub")
+            st.write("**FB Text (Headline + Gap + Hashtags):**")
+            st.text_area("Facebook Copy Area:", value=data["fb_text"], height=250)
             
         with row2_c2:
-            st.warning("🔵 FB Business Suite")
-            st.write("**Facebook Post Text (Headline + Gap + Hashtags):**")
-            formatted_fb_post = f"{data['headline_clean']}\n\n{data['shared_hashtags']}"
-            st.code(formatted_fb_post, language="")
-            
-        with row2_c3:
             st.info("🎵 TikTok Dispatch Hub")
             st.write("**TikTok Caption (Headline + Desc + Gap + Hashtags):**")
-            formatted_tiktok_post = f"{data['headline_clean']}\n{data['desc_clean']}\n\n{data['shared_hashtags']}"
-            st.code(formatted_tiktok_post, language="")
+            st.text_area("TikTok Copy Area:", value=data["tt_text"], height=250)
             
-        with row2_c4:
-            st.success("📰 TBS Website CMS Placeholders")
-            st.write("**বাংলা ওয়েবসাইট হেডলাইন:**")
-            st.code(data["headline_clean"], language="")
-            st.write("**🇬🇧 ইংলিশ ওয়েবসাইট হেডলাইন:**")
-            st.code(data["eng_cms"], language="")
+        with row2_c3:
+            st.error("📊 YT Community Post & Poll")
+            st.write("**কমিউনিটি কন্টেন্ট:**")
+            st.text_area("Community Copy Area:", value=data["comm_post"], height=250)
 
-        # --- ৩. নির্ভুল পাবলিশিং চেকলিস্ট (টিক দিলে পেজ রিলোড হবে না) ---
+        # --- ৩. নিখুঁত পাবলিশিং চেকলিস্ট (রিলোড প্রবলেম ফিক্সড) ---
         st.markdown("---")
         st.subheader("🚨 লাইভ পাবলিশিং চেকলিস্ট (এখানে জাস্ট টিক মার্ক দিন)")
         
-        ch1, ch2, ch3, ch4, ch5, ch6 = st.columns(6)
+        ch1, ch2, ch3, ch4, ch5 = st.columns(5)
         ch1.checkbox("YouTube Video Done", key="chk_yt_v")
         ch2.checkbox("YT Community Done", key="chk_yt_c")
         ch3.checkbox("Facebook Post Done", key="chk_fb")
         ch4.checkbox("TikTok Pushed", key="chk_tt")
-        ch5.checkbox("Bangla CMS Done", key="chk_cms_b")
-        ch6.checkbox("English CMS Done", key="chk_cms_e")
+        ch5.checkbox("Bangla/English CMS Done", key="chk_cms_all")
 
 # ----------------- 🔍 ট্যাব ২: প্রতিদ্বন্দী স্ক্র্যাপার (সুরক্ষিত) -----------------
 with tab2:

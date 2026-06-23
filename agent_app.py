@@ -5,6 +5,7 @@ import urllib.request
 import urllib.parse
 import urllib.error
 import json
+from collections import Counter
 
 # পেজ সেটআপ
 st.set_page_config(page_title="TBS Sovereign Agent 3.0", page_icon="🧠", layout="wide")
@@ -40,6 +41,7 @@ with tab1:
     
     headline = st.text_input("১. কোম্পানি থেকে দেওয়া মূল Headline বা নিউজ কনটেক্সট দিন:", placeholder="যেমন: প্রতিরক্ষায় আরও শক্তিশালী হবে বাংলাদেশ")
     given_desc = st.text_area("২. কোম্পানি থেকে দেওয়া বিবরণ (Description/Article Body):", placeholder="এখানে বিবরণটি পেস্ট করুন...")
+    given_eng_headline = st.text_input("৩. কোম্পানি থেকে দেওয়া English Headline (ঐচ্ছিক - থাকলে দিন, না থাকলে ফাঁকা রাখুন):", placeholder="যেমন: Journalist Allegedly Assaulted at Jamaat Rally in Dhanmondi")
 
     if st.button("🧠 সুপার ব্রেন অপ্টিমাইজেশন রান করুন 🚀"):
         if not headline:
@@ -47,23 +49,28 @@ with tab1:
         elif not clean_gemini_key:
             st.error("দয়া করে বাম পাশের সাইডবারে আপনার ফ্রি Gemini AI Key টি দিন।")
         else:
-            with st.spinner(f"গুগল ஜেমিনি এআই ({clean_model_type}) আপনার নিউজ অ্যানালাইসিস করছে..."):
+            with st.spinner(f"গুগল জেমিনি এআই ({clean_model_type}) আপনার নিউজ অ্যানালাইসিস করছে..."):
                 
-                # এআই শুধু রিলিজ এলিমেন্ট জেনারেট করবে, ফরম্যাটিং পাইথন নিজে হ্যান্ডেল করবে
+                # এআই প্রম্পট - হাই কোয়ালিটি এনটিটি-ভিত্তিক এসইও এবং চ্যানেল সেফটি রুলস সহ
                 prompt = f"""
-                Act as an elite YouTube News SEO Specialist for 'The Business Standard (TBS)'.
-                Analyze the headline and description to provide elements for 2026 search trends.
+                Act as an elite YouTube News SEO Specialist and Google News SEO Expert for 'The Business Standard (TBS)'.
+                Analyze the provided headline and script context to generate hyper-targeted, high-CTR metadata assets for maximum reach.
                 
-                Headline: {headline}
-                Description: {given_desc}
+                CRITICAL POLICY SAFETY RULE: Do NOT include generic, trending but completely irrelevant news tags (such as Trump, Iran, Ukraine, war, etc.) if they are completely unrelated to this local news piece. Misleading tags cause YouTube community guidelines strikes and account termination. Keep keywords hyper-focused ONLY on the actual entities present in the news context.
+                
+                Current Context: Year 2026 Search Trends. All hashtags MUST be 100% lowercase with no spaces.
+                
+                News Headline: {headline}
+                News Description: {given_desc}
+                English Headline Provided: {given_eng_headline if given_eng_headline else "None"}
                 
                 Strict Output Rules:
                 Your response must contain these exact section markers:
-                [ENGLISH_TITLE]: Accurate high-quality professional English translation of the headline.
-                [SUFFIX]: A clean English SEO suffix based on context (e.g., | Military | Budget | World Cup 2026).
+                [SUFFIX]: 2 or 3 clean, high-intent English keywords/entities separated by pipes based on context (e.g., | Dhanmondi 32 | Jamaat Rally | Latest News).
                 [CONTEXT_HASHTAGS]: 2 or 3 completely lowercase viral hashtags separated by spaces related specifically to the news context (DO NOT include brand names like tbs).
-                [KEYWORDS]: 10 viral semantic keywords separated by commas for the tag box.
+                [KEYWORDS]: Generate a massive list of 20 high-quality, highly searched viral semantic keywords/tags separated by commas. Maximize the quantity to fill the YouTube tag box efficiently while staying 100% relevant to the entities in the text.
                 [COMMUNITY]: A catchy text for YouTube Community Post with hook question, summary, and a 4-option Poll suggestion.
+                [FB_TITLE]: A punchy, click-friendly title optimized specifically for Facebook audience.
                 """
                 
                 try:
@@ -87,19 +94,23 @@ with tab1:
                         except:
                             return ""
 
-                    eng_title = extract_section("ENGLISH_TITLE", ai_response)
                     ai_suffix = extract_section("SUFFIX", ai_response)
                     context_hashtags = extract_section("CONTEXT_HASHTAGS", ai_response)
                     ai_keywords = extract_section("KEYWORDS", ai_response)
                     comm_post = extract_section("COMMUNITY", ai_response)
+                    fb_title = extract_section("FB_TITLE", ai_response)
 
-                    # --- পাইথন ডিটারমিনিস্টিক ইঞ্জিন (আপনার রুল বুক অনুযায়ী সাজানো) ---
+                    # --- পাইথন রুল ইঞ্জিন (আপনার গাইডলাইন অনুযায়ী শতভাগ ফরম্যাটিং) ---
                     headline_clean = headline.strip()
                     desc_clean = given_desc.strip() if given_desc else headline_clean
+                    eng_headline_clean = given_eng_headline.strip() if given_eng_headline else ""
                     
-                    # ১. ইউনিভার্সাল ব্র্যান্ডেড হ্যাশট্যাগ কম্বো (ম্যাক্স ৩টি ব্র্যান্ড হ্যাশট্যাগ)
+                    # ১. হ্যাশট্যাগ পজিশনিং: ট্রেন্ডিং হ্যাশট্যাগ আগে + ৩টি অফিশিয়াল ব্র্যান্ড হ্যাশট্যাগ একদম সবার শেষে
                     brand_hashtags = "#tbsnews #thebusinessstandard #tbs"
-                    final_shared_hashtags = f"{brand_hashtags} {context_hashtags.lower()}"
+                    if context_hashtags:
+                        final_shared_hashtags = f"{context_hashtags.lower()} {brand_hashtags}"
+                    else:
+                        final_shared_hashtags = brand_hashtags
 
                     # ২. টাইটেল ১০০ ক্যারেক্টার সিকিউরিটি লজিক
                     suffix_formatted = f" {ai_suffix}" if ai_suffix else ""
@@ -111,14 +122,24 @@ with tab1:
                     if len(yt_title) > 100:
                         yt_title = headline_clean[:100]
 
-                    # ৩. সুনির্দিষ্ট প্ল্যাটফর্ম ভিত্তিক ডেসক্রিপশন জেনারেটর (১ লাইন গ্যাপ লজিক)
-                    yt_description = f"{eng_title}\n\n{desc_clean}\n\n{final_shared_hashtags}"
+                    # ৩. কাস্টম ডেসক্রিপশন স্ট্রাকচার (ইংলিশ লাইন না থাকলে স্কিপ হবে অটোমেটিক)
+                    if eng_headline_clean:
+                        yt_description = f"{eng_headline_clean}\n\n{desc_clean}\n\n{final_shared_hashtags}"
+                    else:
+                        yt_description = f"{desc_clean}\n\n{final_shared_hashtags}"
+                        
                     fb_post_text = f"{headline_clean}\n\n{final_shared_hashtags}"
                     tiktok_post_text = f"{headline_clean}\n{desc_clean}\n\n{final_shared_hashtags}"
 
-                    # ৪. রেডি-টু-পেস্ট ট্যাগ বক্স কম্বিনেশন
+                    # ৪. ম্যাক্সিমাম কোয়ালিটি ট্যাগ বক্স (বাংলা হেডলাইন + ইংলিশ হেডলাইন + ব্র্যান্ড ট্যাগ + ২০টি সেফ কিওয়ার্ডস)
                     brand_tags = "tbs, tbs news, the business standard"
-                    yt_tags_box = f"{headline_clean}, {eng_title}, {brand_tags}, {ai_keywords}"
+                    if eng_headline_clean:
+                        yt_tags_box = f"{headline_clean}, {eng_headline_clean}, {brand_tags}, {ai_keywords}"
+                    else:
+                        yt_tags_box = f"{headline_clean}, {brand_tags}, {ai_keywords}"
+                        
+                    # ৫০০ অক্ষরের অতিরিক্ত অংশ ছাঁটাই করা (ইউটিউব এরর সেফটি)
+                    yt_tags_box = yt_tags_box[:495]
 
                     # লাইভ মেমোরি স্টেটে ডেটা সেভ (লক)
                     st.session_state['ai_output'] = {
@@ -153,15 +174,15 @@ with tab1:
             st.write("**AI Target Title (<100 Chars):**")
             st.code(data["yt_title"], language="")
         with col_t2:
-            st.write("**🎯 সার্চ Tags (ডাইরেক্ট পেস্ট বক্স):**")
+            st.write("**🎯 সার্চ Tags (ম্যাক্সিমাম কোয়ালিটি এবং ৫০০ ক্যারেক্টার পলিসি সেফ):**")
             st.code(data["yt_tags"], language="")
             
-        st.write("**📝 YouTube Description Box (English Title + Bangla Desc + Gap + Hashtags):**")
+        st.write("**📝 YouTube Description Box (১ লাইন গ্যাপ এবং শেষে ব্র্যান্ড হ্যাশট্যাগসহ অটো-ফরম্যাটেড):**")
         st.text_area("YouTube Copy Area:", value=data["yt_desc"], height=200)
         
         st.markdown("---")
         
-        # 📱 ২. ফেসবুক, টিকটক এবং কমিউনিটি পোস্ট গ্রিড (১০০% ক্লিন)
+        # 📱 ২. ফেসবুক, টিকটক এবং কন্টেন্ট গ্রিড
         row2_c1, row2_c2, row2_c3 = st.columns(3)
         
         with row2_c1:
@@ -188,9 +209,9 @@ with tab1:
         ch2.checkbox("YT Community Done", key="chk_yt_c")
         ch3.checkbox("Facebook Post Done", key="chk_fb")
         ch4.checkbox("TikTok Pushed", key="chk_tt")
-        ch5.checkbox("Bangla/English CMS Done", key="chk_cms_all")
+        ch5.checkbox("All Platforms Upload Completed ✅", key="chk_cms_all")
 
-# ----------------- 🔍 ট্যাব ২: প্রতিদ্বন্দী স্ক্র্যাপার (সুরক্ষিত) -----------------
+# ----------------- 🔍 ট্যাব ২: প্রতিদ্বন্দী স্ক্র্যাপার -----------------
 with tab2:
     st.header("প্রতিদ্বন্দী ভিডিওর ভেতরের আসল Tags এবং Hashtags স্ক্র্যাপার")
     keyword = st.text_input("সার্চ কিওয়ার্ডটি লিখুন:", placeholder="যেমন: বাজেট ২০২৬ বাংলাদেশ", key="tab2_kw")
